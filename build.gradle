@@ -13,9 +13,7 @@ apply plugin: 'kotlin'
 
 // In this section you declare where to find the dependencies of your project
 repositories {
-    // Use 'jcenter' for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+    mavenCentral()
 }
 
 buildscript {
@@ -28,10 +26,31 @@ buildscript {
     }
 }
 
+sourceSets {
+    main {
+        java.srcDirs = []
+        kotlin.srcDirs = ['src/main/core']
+        resources.srcDir 'res'
+    }
+
+    test {
+        kotlin.srcDir 'src/test/core'
+        resources.srcDir 'res'
+    }
+}
+
+test {
+    testLogging {
+        showStandardStreams = true
+    }
+    outputs.upToDateWhen {false}
+}
+
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.18'
+    compile 'rome:rome:1.0'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
@@ -40,4 +59,5 @@ dependencies {
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
     testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }

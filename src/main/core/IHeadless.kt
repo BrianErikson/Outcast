@@ -6,6 +6,10 @@ interface IHeadless {
     fun launch(): Boolean;
     fun quit(): Boolean;
 
+    fun play();
+    fun pause();
+    fun stop();
+
     fun loadNextTrack();
     fun loadPreviousTrack();
     fun seek(percent: Float);

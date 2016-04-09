@@ -1,44 +1,62 @@
+import org.junit.After
 import org.junit.Test
 import org.junit.Assert
+import org.junit.Before
+import java.net.URL
 
 class OutcastTest {
-    val outcastApp : IHeadless = Outcast();
+    var outcastApp : IHeadless? = null;
 
-    // UnitOfWork_StateUnderTest_ExpectedBehavior
-    @Test fun Lifecycle_startUp_Successful() {
-        Assert.assertTrue(outcastApp.launch());
+    @Before fun Lifecycle_init_Successful() {
+        outcastApp = Outcast(URL("http://atp.fm/episodes?format=rss"));
+        Assert.assertNotNull(outcastApp);
+        Assert.assertTrue(outcastApp!!.launch());
     }
-    @Test fun Lifecycle_destruction_Successful() {
-        Assert.assertTrue(outcastApp.quit());
+
+    @After fun Lifecycle_destruction_Successful() {
+        Assert.assertTrue(outcastApp!!.quit());
     }
 
     @Test fun Track_next_Changed() {
-        val prevTrack = outcastApp.previousTrack;
-        val curTrack = outcastApp.currentTrack;
-        val nextTrack = outcastApp.nextTrack;
-        outcastApp.loadNextTrack();
+        val prevTrack = outcastApp!!.previousTrack;
+        val curTrack = outcastApp!!.currentTrack;
+        val nextTrack = outcastApp!!.nextTrack;
+        outcastApp!!.loadNextTrack();
 
-        val newLoadedTrack = outcastApp.currentTrack;
 
-        Assert.assertFalse(newLoadedTrack.equals(prevTrack));
-        Assert.assertFalse(newLoadedTrack.equals(curTrack));
-        Assert.assertTrue(newLoadedTrack.equals(nextTrack));
+        val newLoadedTrack = outcastApp!!.currentTrack;
+
+        Assert.assertFalse("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
+        Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));
+        Assert.assertTrue("Next: $nextTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(nextTrack));
     }
 
     @Test fun Track_previous_Changed() {
-        val prevTrack = outcastApp.previousTrack;
-        val curTrack = outcastApp.currentTrack;
-        val nextTrack = outcastApp.nextTrack;
-        outcastApp.loadPreviousTrack();
+        val prevTrack = outcastApp!!.previousTrack;
+        val curTrack = outcastApp!!.currentTrack;
+        val nextTrack = outcastApp!!.nextTrack;
+        outcastApp!!.loadPreviousTrack();
 
-        val newLoadedTrack = outcastApp.currentTrack;
+        val newLoadedTrack = outcastApp!!.currentTrack;
 
-        Assert.assertTrue(newLoadedTrack.equals(prevTrack));
-        Assert.assertFalse(newLoadedTrack.equals(curTrack));
-        Assert.assertFalse(newLoadedTrack.equals(nextTrack));
+        Assert.assertTrue("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
+        Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));
+        Assert.assertFalse("Next: $nextTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(nextTrack));
     }
 
     @Test fun Track_seek_Operational() {
+        Assert.fail("Unimplemented");
+    }
+
+    @Test fun Track_play_Operational() {
+        Assert.fail("Unimplemented");
+    }
+
+    @Test fun Track_pause_Operational() {
+        Assert.fail("Unimplemented");
+    }
+
+    @Test fun Track_stop_Operational() {
         Assert.fail("Unimplemented");
     }
 }
