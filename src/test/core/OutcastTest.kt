@@ -19,12 +19,12 @@ class OutcastTest {
 
     @Test fun Track_next_Changed() {
         val prevTrack = outcastApp!!.previousTrack;
-        val curTrack = outcastApp!!.currentTrack;
+        val curTrack = outcastApp!!.getTrackName();
         val nextTrack = outcastApp!!.nextTrack;
         outcastApp!!.loadNextTrack();
 
 
-        val newLoadedTrack = outcastApp!!.currentTrack;
+        val newLoadedTrack = outcastApp!!.getTrackName();
 
         Assert.assertFalse("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
         Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));
@@ -33,11 +33,11 @@ class OutcastTest {
 
     @Test fun Track_previous_Changed() {
         val prevTrack = outcastApp!!.previousTrack;
-        val curTrack = outcastApp!!.currentTrack;
+        val curTrack = outcastApp!!.getTrackName();
         val nextTrack = outcastApp!!.nextTrack;
         outcastApp!!.loadPreviousTrack();
 
-        val newLoadedTrack = outcastApp!!.currentTrack;
+        val newLoadedTrack = outcastApp!!.getTrackName();
 
         Assert.assertTrue("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
         Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));

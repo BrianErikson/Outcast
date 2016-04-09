@@ -17,7 +17,7 @@ repositories {
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.1-1'
+    ext.kotlin_version = '1.0.1-2'
     repositories {
         mavenCentral()
     }
@@ -43,13 +43,14 @@ test {
     testLogging {
         showStandardStreams = true
     }
-    outputs.upToDateWhen {false}
+    //outputs.upToDateWhen {false}
 }
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.18'
+    compile 'javax.media:jmf:2.1.1e'
     compile 'rome:rome:1.0'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
