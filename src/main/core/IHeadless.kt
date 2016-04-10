@@ -1,7 +1,4 @@
 interface IHeadless {
-    var previousTrack: String;
-    var nextTrack: String;
-
     fun launch(): Boolean;
     fun quit(): Boolean;
 
@@ -13,5 +10,7 @@ interface IHeadless {
     fun seek(percent: Float);
     fun getSeekTime(): Float;
     fun getPlayerState(): PlayerState;
+    fun getPreviousTrackName(): String;
     fun getTrackName(): String;
+    fun getNextTrackName(): String;
 }

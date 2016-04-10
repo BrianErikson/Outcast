@@ -13,23 +13,6 @@ import javax.media.Player
 
 class Outcast(val feedUrl: URL) : IHeadless {
 
-    override var previousTrack: String = "None";
-        get() {
-            if (trackIndex - 1 >= 0) {
-                println("GTe 0")
-                return tracks[trackIndex - 1].title;
-            }
-            return currentTrack.title;
-        }
-
-    override var nextTrack: String = "None";
-        get() {
-            if (trackIndex + 1 < tracks.size) {
-                return tracks[trackIndex + 1].title;
-            }
-            return currentTrack.title;
-        }
-
     private var trackIndex: Int = 0;
     set(value) {
         if (trackIndex < 0) {
@@ -59,6 +42,21 @@ class Outcast(val feedUrl: URL) : IHeadless {
 
     private var tracks: List<SyndEntryImpl> = listOf();
     private var currentTrack: SyndEntryImpl = SyndEntryImpl();
+    set(value) {
+        previousTrack = field;
+        field = value;
+    }
+
+    private var previousTrack: SyndEntryImpl = SyndEntryImpl(); // Set when currentTrack is set
+    private val nextTrack: SyndEntryImpl
+    get() {
+        if (trackIndex + 1 < tracks.size) {
+            return tracks[trackIndex + 1];
+        }
+        else {
+            return currentTrack;
+        }
+    }
 
     private var player: Player? = null;
 
@@ -75,6 +73,13 @@ class Outcast(val feedUrl: URL) : IHeadless {
             });
 
             tracks = links.toList();
+            currentTrack = tracks[trackIndex];
+            previousTrack = currentTrack;
+
+            if (tracks.isEmpty() || currentTrack.enclosures.isEmpty()) {
+                throw RuntimeException("ERROR: Number of tracks: ${tracks.isEmpty()}, Current track enclosure size: ${currentTrack.enclosures.size}");
+            }
+
             return true;
         }
         catch (e: Exception) {
@@ -86,7 +91,8 @@ class Outcast(val feedUrl: URL) : IHeadless {
 
     override fun play() {
         if (currentTrack != tracks[trackIndex]) {
-        currentTrack = tracks[trackIndex];
+            currentTrack = tracks[trackIndex];
+            player?.close();
             player = createPlayer(getTrackUrl(currentTrack));
             player!!.start();
         }
@@ -103,11 +109,15 @@ class Outcast(val feedUrl: URL) : IHeadless {
     }
 
     override fun loadNextTrack() {
-        throw UnsupportedOperationException()
+        if (currentTrack != nextTrack) {
+            loadTrack(nextTrack);
+        }
     }
 
     override fun loadPreviousTrack() {
-        throw UnsupportedOperationException()
+        if (currentTrack != previousTrack) {
+            loadTrack(previousTrack);
+        }
     }
 
     override fun seek(percent: Float) {
@@ -115,11 +125,13 @@ class Outcast(val feedUrl: URL) : IHeadless {
     }
 
     override fun quit(): Boolean {
+        player?.stop();
+        player?.close();
         return true;
     }
 
     override fun getTrackName(): String {
-        return tracks[trackIndex].title;
+        return currentTrack.title ?: "None";
     }
 
     override fun getSeekTime(): Float {
@@ -136,6 +148,19 @@ class Outcast(val feedUrl: URL) : IHeadless {
 
     override fun getPlayerState(): PlayerState {
         return state;
+    }
+
+    override fun getNextTrackName(): String {
+        return nextTrack.title ?: "None";
+    }
+
+    override fun getPreviousTrackName(): String {
+        return previousTrack.title ?: "None";
+    }
+
+    fun loadTrack(track: SyndEntryImpl) {
+        trackIndex = tracks.indexOf(track);
+        play();
     }
 
     private fun getTrackUrl(track: SyndEntryImpl): String {

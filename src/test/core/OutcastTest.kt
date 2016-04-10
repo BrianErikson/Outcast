@@ -17,30 +17,30 @@ class OutcastTest {
         Assert.assertTrue(outcastApp!!.quit());
     }
 
+    // TODO: Test for nextTrack == curTrack because at end of track list
     @Test fun Track_next_Changed() {
-        val prevTrack = outcastApp!!.previousTrack;
-        val curTrack = outcastApp!!.getTrackName();
-        val nextTrack = outcastApp!!.nextTrack;
+        testTracks();
+        val prevTrack = outcastApp!!.getPreviousTrackName();
+        val nextTrack = outcastApp!!.getNextTrackName();
         outcastApp!!.loadNextTrack();
 
 
         val newLoadedTrack = outcastApp!!.getTrackName();
 
         Assert.assertFalse("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
-        Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));
         Assert.assertTrue("Next: $nextTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(nextTrack));
     }
 
+    // TODO: Test for prevTrack == curTrack because at beginning of track list
     @Test fun Track_previous_Changed() {
-        val prevTrack = outcastApp!!.previousTrack;
-        val curTrack = outcastApp!!.getTrackName();
-        val nextTrack = outcastApp!!.nextTrack;
+        testTracks();
+        val prevTrack = outcastApp!!.getPreviousTrackName();
+        val nextTrack = outcastApp!!.getNextTrackName();
         outcastApp!!.loadPreviousTrack();
 
         val newLoadedTrack = outcastApp!!.getTrackName();
 
         Assert.assertTrue("Previous: $prevTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(prevTrack));
-        Assert.assertFalse("Current: $curTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(curTrack));
         Assert.assertFalse("Next: $nextTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(nextTrack));
     }
 
@@ -58,5 +58,15 @@ class OutcastTest {
 
     @Test fun Track_stop_Operational() {
         Assert.fail("Unimplemented");
+    }
+
+    private fun testTracks() {
+        val prevTrack = outcastApp!!.getPreviousTrackName();
+        val curTrack = outcastApp!!.getTrackName();
+        val nextTrack = outcastApp!!.getNextTrackName();
+
+        Assert.assertFalse(prevTrack.equals("None"));
+        Assert.assertFalse(curTrack.equals("None"));
+        Assert.assertFalse(nextTrack.equals("None"));
     }
 }
