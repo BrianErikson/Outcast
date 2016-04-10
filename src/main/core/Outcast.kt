@@ -1,3 +1,4 @@
+import com.sun.media.PlaybackEngine
 import com.sun.syndication.feed.synd.SyndEnclosureImpl
 import com.sun.syndication.feed.synd.SyndEntryImpl
 import com.sun.syndication.io.SyndFeedInput
@@ -5,12 +6,10 @@ import com.sun.syndication.io.XmlReader
 import java.io.File
 import java.net.MalformedURLException
 import java.net.URL
-import javax.media.Controller
-import javax.media.Manager
-import javax.media.NoPlayerException
-import javax.media.Player
+import javax.media.*
 
 fun main(args: Array<String>) {
+    PlaybackEngine.TRACE_ON = true;
     val outcast = Outcast(URL("http://atp.fm/episodes?format=rss"));
     outcast.play();
 }
@@ -92,18 +91,15 @@ class Outcast(val feedUrl: URL) : IHeadless {
     }
 
     override fun play() {
-        println("Enter play method");
+        println("Play requested.")
         if (currentTrack != tracks[trackIndex]) {
-            println("Current track != indexed track");
             currentTrack = tracks[trackIndex];
             player?.close();
             player = createPlayer(getTrackUrl(currentTrack));
             player!!.start();
         }
         else {
-            println("Current track is indexed properly");
             player?.start() ?: run {
-                println("Player doesn't exist. Creating one.");
                 player = createPlayer(getTrackUrl(currentTrack));
                 player!!.start();
             }
@@ -131,9 +127,9 @@ class Outcast(val feedUrl: URL) : IHeadless {
     }
 
     override fun quit(): Boolean {
-        player?.stop();
+        stop();
         player?.close();
-        return true;
+        return false;
     }
 
     override fun getTrackName(): String {
@@ -187,7 +183,16 @@ class Outcast(val feedUrl: URL) : IHeadless {
 
     private fun createPlayer(url: String): Player {
         try {
-            return Manager.createPlayer(URL(url));
+            val player = Manager.createPlayer(URL(url));
+            player.addControllerListener {
+                if (it is StartEvent) {
+                    //player.gainControl.level = 1.0f;
+
+                    println("level: ${player.gainControl.level}, db: ${player.gainControl.db}")
+                }
+            }
+            println("Player created for URL $url");
+            return player;
         }
         catch (e: MalformedURLException) { //IOException, NoPlayerException
             throw MalformedURLException("ERROR: Could not play ${tracks[trackIndex].title}, URL $url is malformed.");

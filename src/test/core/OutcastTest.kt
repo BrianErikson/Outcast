@@ -12,7 +12,11 @@ class OutcastTest {
     }
 
     @After fun Lifecycle_destruction_Successful() {
-        Assert.assertTrue(outcastApp.quit());
+        outcastApp.quit();
+        Assert.assertTrue(
+                "State: ${outcastApp.getPlayerState()}, Expected: ${PlayerState.Stopped} or ${PlayerState.Unrealized}",
+                outcastApp.getPlayerState() == PlayerState.Stopped || outcastApp.getPlayerState() == PlayerState.Unrealized
+        );
     }
 
     // TODO: Test for nextTrack == curTrack because at end of track list
@@ -42,10 +46,6 @@ class OutcastTest {
         Assert.assertFalse("Next: $nextTrack Loaded: $newLoadedTrack", newLoadedTrack.equals(nextTrack));
     }
 
-    @Test fun Track_seek_Operational() {
-        Assert.fail("Unimplemented");
-    }
-
     @Test fun Track_play_Operational() {
         outcastApp.play();
         Assert.assertTrue(
@@ -54,15 +54,11 @@ class OutcastTest {
         )
     }
 
-    @Test fun Track_pause_Operational() {
-        Assert.fail("Unimplemented");
-    }
-
     @Test fun Track_stop_Operational() {
         outcastApp.stop();
         Assert.assertTrue(
-                "State: ${outcastApp.getPlayerState()}, Expected: ${PlayerState.Stopped}",
-                outcastApp.getPlayerState() == PlayerState.Stopped
+                "State: ${outcastApp.getPlayerState()}, Expected: ${PlayerState.Stopped} or ${PlayerState.Unrealized}",
+                outcastApp.getPlayerState() == PlayerState.Stopped || outcastApp.getPlayerState() == PlayerState.Unrealized
         );
     }
 
