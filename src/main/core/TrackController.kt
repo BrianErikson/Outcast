@@ -1,15 +1,14 @@
 import com.sun.syndication.feed.synd.SyndEnclosureImpl
 import com.sun.syndication.feed.synd.SyndEntryImpl
-import com.sun.syndication.io.SyndFeedInput
-import com.sun.syndication.io.XmlReader
-import java.io.File
-import java.net.URL
+import com.sun.syndication.feed.synd.SyndFeedImpl
 import java.util.*
 
 
-data class Track(val author: String, val url: String, val title: String, val description: String, val date: Date);
+data class Track(val author: String, val url: String, val title: String, val description: String, val date: Date, val entry: SyndEntryImpl);
 
-class TrackController {
+class TrackController(feed: SyndFeedImpl) {
+    val rssFeed: SyndFeedImpl = feed;
+
     var nextTrack: Track
         get() {
             if (index + 1 >= tracks.size) return currentTrack else return tracks[index + 1];
@@ -32,13 +31,11 @@ class TrackController {
     private var index: Int = 0;
 
     init {
-        val input = SyndFeedInput();
-        val feed = input.build(XmlReader(File(javaClass.getResource("atpRss.txt").file)));
         val links = mutableListOf<Track>();
 
-        feed.entries.forEach(fun(entry: Any?) {
+        rssFeed.entries.forEach(fun(entry: Any?) {
             if (entry is SyndEntryImpl) {
-                links.add(Track(entry.author, getTrackUrl(entry), entry.title, entry.description.value, entry.publishedDate));
+                links.add(Track(entry.author, getTrackUrl(entry), entry.title, entry.description.value, entry.publishedDate, entry));
             }
         });
 
