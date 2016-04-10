@@ -1,5 +1,4 @@
 interface IHeadless {
-    fun launch(): Boolean;
     fun quit(): Boolean;
 
     fun play();

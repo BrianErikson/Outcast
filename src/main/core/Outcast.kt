@@ -10,6 +10,11 @@ import javax.media.Manager
 import javax.media.NoPlayerException
 import javax.media.Player
 
+fun main(args: Array<String>) {
+    val outcast = Outcast(URL("http://atp.fm/episodes?format=rss"));
+    outcast.play();
+}
+
 
 class Outcast(val feedUrl: URL) : IHeadless {
 
@@ -60,7 +65,7 @@ class Outcast(val feedUrl: URL) : IHeadless {
 
     private var player: Player? = null;
 
-    override fun launch(): Boolean {
+    init {
         try {
             val input = SyndFeedInput();
             val feed = input.build(XmlReader(File(javaClass.getResource("atpRss.txt").file)));
@@ -79,25 +84,26 @@ class Outcast(val feedUrl: URL) : IHeadless {
             if (tracks.isEmpty() || currentTrack.enclosures.isEmpty()) {
                 throw RuntimeException("ERROR: Number of tracks: ${tracks.isEmpty()}, Current track enclosure size: ${currentTrack.enclosures.size}");
             }
-
-            return true;
         }
         catch (e: Exception) {
             e.printStackTrace();
             println("ERROR: " + e.message);
-            return false;
         }
     }
 
     override fun play() {
+        println("Enter play method");
         if (currentTrack != tracks[trackIndex]) {
+            println("Current track != indexed track");
             currentTrack = tracks[trackIndex];
             player?.close();
             player = createPlayer(getTrackUrl(currentTrack));
             player!!.start();
         }
         else {
-            player?.start() ?: fun() {
+            println("Current track is indexed properly");
+            player?.start() ?: run {
+                println("Player doesn't exist. Creating one.");
                 player = createPlayer(getTrackUrl(currentTrack));
                 player!!.start();
             }
