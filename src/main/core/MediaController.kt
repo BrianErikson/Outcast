@@ -13,7 +13,7 @@ import javafx.scene.media.MediaPlayer.Status
 import javafx.scene.media.MediaView
 import javafx.util.Duration
 
-internal class MediaController(val media: Media) : BorderPane() {
+class MediaController(private val media: Media) : BorderPane() {
 
     var track: Media = media;
     set(value) {
@@ -34,6 +34,7 @@ internal class MediaController(val media: Media) : BorderPane() {
     private val playButton: Button;
 
     init {
+        playButton = Button(">");
         maxHeight = Double.MAX_VALUE;
         mediaPlayer = MediaPlayer(media);
         duration = Duration.ZERO;
@@ -49,7 +50,6 @@ internal class MediaController(val media: Media) : BorderPane() {
         mediaBar.padding = Insets(5.0, 10.0, 5.0, 10.0)
         BorderPane.setAlignment(mediaBar, Pos.CENTER)
 
-        playButton = Button(">")
 
         playButton.onAction = EventHandler<javafx.event.ActionEvent> {
             val status = mediaPlayer.status
@@ -121,18 +121,16 @@ internal class MediaController(val media: Media) : BorderPane() {
     }
 
     protected fun updateValues() {
-        if (playTime != null && timeSlider != null && volumeSlider != null) {
-            Platform.runLater {
-                val currentTime = mediaPlayer.currentTime
-                playTime.text = formatTime(currentTime, duration ?: Duration(0.toDouble()))
-                timeSlider.isDisable = duration!!.isUnknown
-                if (!timeSlider.isDisabled && duration!!.greaterThan(Duration.ZERO)
-                        && !timeSlider.isValueChanging) {
-                    timeSlider.value = currentTime.divide(duration).toMillis() * 100.0
-                }
-                if (!volumeSlider.isValueChanging) {
-                    volumeSlider.value = Math.round(mediaPlayer.volume * 100).toInt().toDouble()
-                }
+        Platform.runLater {
+            val currentTime = mediaPlayer.currentTime;
+            playTime.text = formatTime(currentTime, duration);
+            timeSlider.isDisable = duration.isUnknown;
+            if (!timeSlider.isDisabled && duration.greaterThan(Duration.ZERO)
+                    && !timeSlider.isValueChanging) {
+                timeSlider.value = currentTime.divide(duration).toMillis() * 100.0;
+            }
+            if (!volumeSlider.isValueChanging) {
+                volumeSlider.value = Math.round(mediaPlayer.volume * 100).toDouble();
             }
         }
     }
@@ -174,7 +172,12 @@ internal class MediaController(val media: Media) : BorderPane() {
     }
 
     private fun rebuildMediaPlayer() {
+        mediaPlayer.dispose();
+        playButton.text = ">";
+
         mediaPlayer = MediaPlayer(track);
+        mediaPlayer.isAutoPlay = true;
+        updateValues();
         mediaPlayer.currentTimeProperty().addListener(InvalidationListener { updateValues() })
 
         mediaPlayer.onPlaying = Runnable {

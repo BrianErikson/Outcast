@@ -27,7 +27,7 @@ class Outcast: Application() {
         VBox.setVgrow(mediaController, Priority.ALWAYS);
         stage = primaryStage;
         val root = VBox();
-        val rssDisplay = RssFeedDisplay(rssFeed);
+        val rssDisplay = RssFeedDisplay(rssFeed, mediaController);
         root.children.add(rssDisplay);
         root.children.add(mediaController);
 

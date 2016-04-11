@@ -56,19 +56,22 @@ class TrackController(feed: SyndFeedImpl) {
         return currentTrack;
     }
 
-    private fun getTrackUrl(track: SyndEntryImpl): String {
-        var url: String = "";
-        track.enclosures.forEach(fun(enclosure: Any?) {
-            if (enclosure is SyndEnclosureImpl && enclosure.url.isNotEmpty()) {
-                url = enclosure.url;
-                return;
+
+    companion object {
+        fun getTrackUrl(track: SyndEntryImpl): String {
+            var url: String = "";
+            track.enclosures.forEach(fun(enclosure: Any?) {
+                if (enclosure is SyndEnclosureImpl && enclosure.url.isNotEmpty()) {
+                    url = enclosure.url;
+                    return;
+                }
+            });
+
+            if (url.isEmpty()) {
+                throw RuntimeException("ERROR: Could not get track URL for ${track.title}");
             }
-        });
 
-        if (url.isEmpty()) {
-            throw RuntimeException("ERROR: Could not get track URL for ${track.title}");
+            return url;
         }
-
-        return url;
     }
 }
