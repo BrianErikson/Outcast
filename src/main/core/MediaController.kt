@@ -34,6 +34,7 @@ internal class MediaController(val media: Media) : BorderPane() {
     private val playButton: Button;
 
     init {
+        maxHeight = Double.MAX_VALUE;
         mediaPlayer = MediaPlayer(media);
         duration = Duration.ZERO;
         track = media;

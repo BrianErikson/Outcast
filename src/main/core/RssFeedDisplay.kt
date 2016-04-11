@@ -1,5 +1,6 @@
 import com.sun.syndication.feed.synd.SyndEntryImpl
 import com.sun.syndication.feed.synd.SyndFeedImpl
+import javafx.scene.control.Accordion
 import javafx.scene.control.ScrollPane
 import javafx.scene.layout.VBox
 
@@ -10,13 +11,13 @@ class RssFeedDisplay(feed: SyndFeedImpl) : ScrollPane() {
         hbarPolicy = ScrollBarPolicy.NEVER;
         vbarPolicy = ScrollBarPolicy.AS_NEEDED;
 
-        val vbox = VBox();
+        val accordion = Accordion();
         rssFeed.entries.forEach(fun(entry: Any?) {
             if (entry is SyndEntryImpl) {
-                vbox.children.add(RssEntryDisplay(entry));
+                accordion.panes.add(RssEntryDisplay(entry));
             }
         });
 
-        content = vbox;
+        content = accordion;
     }
 }
