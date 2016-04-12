@@ -13,15 +13,15 @@ import javafx.scene.media.MediaPlayer.Status
 import javafx.scene.media.MediaView
 import javafx.util.Duration
 
-class MediaController(private val media: Media) : BorderPane() {
+class MediaController(startMedia: Media? = null) : BorderPane() {
 
-    var track: Media = media;
+    var track: Media? = startMedia;
     set(value) {
         field = value;
         rebuildMediaPlayer();
     }
 
-    private var mediaPlayer: MediaPlayer;
+    private var mediaPlayer: MediaPlayer? = null;
     private val mediaView: MediaView;
     private val repeat = false;
     private var stopRequested = false;
@@ -35,15 +35,11 @@ class MediaController(private val media: Media) : BorderPane() {
 
     init {
         playButton = Button(">");
-        maxHeight = Double.MAX_VALUE;
-        mediaPlayer = MediaPlayer(media);
         duration = Duration.ZERO;
-        track = media;
         style = "-fx-background-color: #bfc2c7;"
         mediaView = MediaView(mediaPlayer)
         val mvPane = Pane();
-        mvPane.children.add(mediaView)
-        mvPane.style = "-fx-background-color: black;"
+        mvPane.children.add(mediaView);
         center = mvPane
         mediaBar = HBox()
         mediaBar.alignment = Pos.CENTER
@@ -52,7 +48,7 @@ class MediaController(private val media: Media) : BorderPane() {
 
 
         playButton.onAction = EventHandler<javafx.event.ActionEvent> {
-            val status = mediaPlayer.status
+            val status = mediaPlayer?.status ?: Status.UNKNOWN;
 
             if (status == Status.UNKNOWN || status == Status.HALTED) {
                 // don't do anything in these states
@@ -63,12 +59,12 @@ class MediaController(private val media: Media) : BorderPane() {
                     || status == Status.STOPPED) {
                 // rewind the movie if we're sitting at the end
                 if (atEndOfMedia) {
-                    mediaPlayer.seek(mediaPlayer.startTime)
+                    mediaPlayer?.seek(mediaPlayer?.startTime)
                     atEndOfMedia = false
                 }
-                mediaPlayer.play()
+                mediaPlayer?.play()
             } else {
-                mediaPlayer.pause()
+                mediaPlayer?.pause()
             }
         }
 
@@ -90,7 +86,7 @@ class MediaController(private val media: Media) : BorderPane() {
         timeSlider.valueProperty().addListener(InvalidationListener {
             if (timeSlider.isValueChanging) {
                 // multiply duration by percentage calculated by slider position
-                mediaPlayer.seek(duration!!.multiply(timeSlider.value / 100.0))
+                mediaPlayer?.seek(duration.multiply(timeSlider.value / 100.0))
             }
         })
 
@@ -113,7 +109,7 @@ class MediaController(private val media: Media) : BorderPane() {
         volumeSlider.minWidth = 30.0
         volumeSlider.valueProperty().addListener(InvalidationListener {
             if (volumeSlider.isValueChanging) {
-                mediaPlayer.volume = volumeSlider.value / 100.0
+                mediaPlayer?.volume = volumeSlider.value / 100.0
             }
         })
         mediaBar.children.add(volumeSlider)
@@ -122,7 +118,7 @@ class MediaController(private val media: Media) : BorderPane() {
 
     protected fun updateValues() {
         Platform.runLater {
-            val currentTime = mediaPlayer.currentTime;
+            val currentTime = mediaPlayer?.currentTime ?: Duration.ZERO;
             playTime.text = formatTime(currentTime, duration);
             timeSlider.isDisable = duration.isUnknown;
             if (!timeSlider.isDisabled && duration.greaterThan(Duration.ZERO)
@@ -130,7 +126,7 @@ class MediaController(private val media: Media) : BorderPane() {
                 timeSlider.value = currentTime.divide(duration).toMillis() * 100.0;
             }
             if (!volumeSlider.isValueChanging) {
-                volumeSlider.value = Math.round(mediaPlayer.volume * 100).toDouble();
+                volumeSlider.value = Math.round((mediaPlayer?.volume ?: 1.toDouble()) * 100).toDouble();
             }
         }
     }
@@ -172,34 +168,34 @@ class MediaController(private val media: Media) : BorderPane() {
     }
 
     private fun rebuildMediaPlayer() {
-        mediaPlayer.dispose();
+        mediaPlayer?.dispose();
         playButton.text = ">";
 
         mediaPlayer = MediaPlayer(track);
-        mediaPlayer.isAutoPlay = true;
+        mediaPlayer!!.isAutoPlay = true;
         updateValues();
-        mediaPlayer.currentTimeProperty().addListener(InvalidationListener { updateValues() })
+        mediaPlayer!!.currentTimeProperty().addListener(InvalidationListener { updateValues() })
 
-        mediaPlayer.onPlaying = Runnable {
+        mediaPlayer!!.onPlaying = Runnable {
             if (stopRequested) {
-                mediaPlayer.pause()
+                mediaPlayer!!.pause()
                 stopRequested = false
             } else {
                 playButton.text = "||"
             }
         }
 
-        mediaPlayer.onPaused = Runnable {
+        mediaPlayer!!.onPaused = Runnable {
             playButton.text = ">"
         }
 
-        mediaPlayer.onReady = Runnable {
-            duration = mediaPlayer.media.duration
+        mediaPlayer!!.onReady = Runnable {
+            duration = mediaPlayer!!.media.duration
             updateValues()
         }
 
-        mediaPlayer.cycleCount = if (repeat) MediaPlayer.INDEFINITE else 1
-        mediaPlayer.onEndOfMedia = Runnable {
+        mediaPlayer!!.cycleCount = if (repeat) MediaPlayer.INDEFINITE else 1
+        mediaPlayer!!.onEndOfMedia = Runnable {
             if (!repeat) {
                 playButton.text = ">"
                 stopRequested = true

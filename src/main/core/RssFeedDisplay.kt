@@ -5,15 +5,27 @@ import javafx.scene.control.Accordion
 import javafx.scene.control.ScrollPane
 import javafx.scene.media.Media
 
-class RssFeedDisplay(feed: SyndFeedImpl, mediaController: MediaController) : ScrollPane() {
-    val rssFeed: SyndFeedImpl = feed;
+class RssFeedDisplay(val mediaController: MediaController, feed: SyndFeedImpl? = null) : ScrollPane() {
+    val accordion: Accordion;
+    var rssFeed: SyndFeedImpl? = feed;
+    set(value) {
+        field = value;
+        buildRssFeed();
+    }
 
     init {
         hbarPolicy = ScrollBarPolicy.NEVER;
         vbarPolicy = ScrollBarPolicy.AS_NEEDED;
 
-        val accordion = Accordion();
-        rssFeed.entries.forEach(fun(entry: Any?) {
+        accordion = Accordion();
+        buildRssFeed();
+        content = accordion;
+    }
+
+    fun buildRssFeed() {
+        accordion.panes.clear();
+
+        rssFeed?.entries?.forEach(fun(entry: Any?) {
             if (entry is SyndEntryImpl) {
                 val entryDisplay = RssEntryDisplay(entry);
                 entryDisplay.playButton.onAction = EventHandler<javafx.event.ActionEvent> {
@@ -24,6 +36,6 @@ class RssFeedDisplay(feed: SyndFeedImpl, mediaController: MediaController) : Scr
             }
         });
 
-        content = accordion;
+        println("Rebuilt rss feed for ${rssFeed?.title ?: "an empty list"}")
     }
 }
