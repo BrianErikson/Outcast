@@ -34,7 +34,7 @@ class Outcast: Application() {
         val rssDisplay = RssFeedDisplay(mediaController);
         VBox.setVgrow(rssDisplay, Priority.ALWAYS);
 
-        searchPane.onResultOpen = object: SelectResultEvent { override fun handle(result: SearchResult) {
+        searchPane.onResultOpen = object: SelectResultEvent { override fun handle(result: Feed) {
             rssDisplay.rssFeed = SyndFeedInput().build(XmlReader(result.rssUrl)) as SyndFeedImpl;
         } };
 
