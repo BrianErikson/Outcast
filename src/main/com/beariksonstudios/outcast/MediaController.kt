@@ -1,3 +1,5 @@
+package com.beariksonstudios.outcast
+
 import javafx.application.Platform
 import javafx.beans.InvalidationListener
 import javafx.event.EventHandler
