@@ -52,7 +52,8 @@ class RssManager() {
 
         fun getPodcast(feed: Feed): Podcast? {
             try {
-                val rss = SyndFeedInput().build(XmlReader(feed.rssUrl)) as SyndFeedImpl;
+                val xmlReader = XmlReader(feed.rssUrl);
+                val rss = SyndFeedInput().build(xmlReader) as SyndFeedImpl;
                 return Podcast(feed.title, rss, URL(rss.image.url), rss.description);
             }
             catch (e: IOException) {

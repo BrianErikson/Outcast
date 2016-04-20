@@ -2,7 +2,7 @@ package com.beariksonstudios.outcast
 
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.layout.HBox
+import javafx.scene.control.SplitPane
 import javafx.stage.Screen
 import javafx.stage.Stage
 
@@ -39,7 +39,8 @@ class Outcast: Application() {
     override fun start(primaryStage: Stage) {
         stage = primaryStage;
         primaryStage.title = "Outcast";
-        val root = HBox(podcastList, trackList, playView);
+        val root = SplitPane(podcastList, trackList, playView);
+        root.setDividerPositions(0.2, 0.4);
 
         val bounds = Screen.getPrimary().visualBounds;
         primaryStage.scene = Scene(root, bounds.width / 2, bounds.height / 1.5f);

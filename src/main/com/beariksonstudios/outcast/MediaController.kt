@@ -7,6 +7,7 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.Label
+import javafx.scene.control.OverrunStyle
 import javafx.scene.control.Slider
 import javafx.scene.layout.*
 import javafx.scene.media.Media
@@ -70,13 +71,16 @@ class MediaController(startMedia: Media? = null) : BorderPane() {
             }
         }
 
+        playButton.minWidth = Region.USE_PREF_SIZE;
         mediaBar.children.add(playButton)
         // Add spacer
-        val spacer = Label("   ")
+        val spacer = Label("   ");
+        spacer.textOverrun = OverrunStyle.CLIP;
         mediaBar.children.add(spacer)
 
         // Add Time label
-        val timeLabel = Label("Time: ")
+        val timeLabel = Label("Time: ");
+        timeLabel.minWidth = Region.USE_PREF_SIZE;
         mediaBar.children.add(timeLabel)
 
         // Add time slider
@@ -96,12 +100,13 @@ class MediaController(startMedia: Media? = null) : BorderPane() {
 
         // Add Play label
         playTime = Label()
-        playTime.prefWidth = 130.0
-        playTime.minWidth = 50.0
+        playTime.prefWidth = 100.0;
+        HBox.setHgrow(playTime, Priority.SOMETIMES);
         mediaBar.children.add(playTime)
 
         // Add the volume label
         val volumeLabel = Label("Vol: ")
+        volumeLabel.minWidth = Region.USE_PREF_SIZE;
         mediaBar.children.add(volumeLabel)
 
         // Add Volume slider

@@ -7,6 +7,8 @@ import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import java.awt.Desktop
+import java.net.URI
 
 class SearchView(private var onFeedOpen: (Feed) -> Unit): VBox() {
 
@@ -20,6 +22,10 @@ class SearchView(private var onFeedOpen: (Feed) -> Unit): VBox() {
         VBox.setVgrow(searchField, Priority.NEVER);
         VBox.setVgrow(button, Priority.NEVER);
         button.tooltip = Tooltip("Can't find your favorite podcast? Add it!");
+
+        button.setOnAction {
+            openWebsite(URI("http://localhost"));
+        }
 
         onMouseClicked = EventHandler<MouseEvent>() {
             if (it.clickCount == 2) {
@@ -37,5 +43,19 @@ class SearchView(private var onFeedOpen: (Feed) -> Unit): VBox() {
     fun setOnPodcastOpen(onOpen: (Feed) -> Unit) {
         onFeedOpen = onOpen;
         listView.onFeedOpen = onOpen;
+    }
+
+    private fun openWebsite(uri: URI) {
+        if (Desktop.isDesktopSupported()) {
+            val desktop = Desktop.getDesktop();
+            if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(uri);
+                }
+                catch (e: Exception) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

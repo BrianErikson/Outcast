@@ -1,5 +1,7 @@
 package com.beariksonstudios.outcast
 
+import javafx.geometry.Orientation
+import javafx.scene.control.SplitPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.media.Media
@@ -12,7 +14,12 @@ class PlayingView: VBox() {
 
     init {
         VBox.setVgrow(mediaPlayer, Priority.NEVER);
-        children.addAll(showcase, description, mediaPlayer);
+
+        val splitPane = SplitPane(showcase, description);
+        splitPane.orientation = Orientation.VERTICAL;
+        splitPane.setDividerPositions(0.15);
+
+        children.addAll(splitPane, mediaPlayer);
     }
 
     fun setTrack(track: Track?) {
