@@ -54,10 +54,10 @@ class RssManager() {
             try {
                 val xmlReader = XmlReader(feed.rssUrl);
                 val rss = SyndFeedInput().build(xmlReader) as SyndFeedImpl;
-                return Podcast(feed.title, rss, URL(rss.image.url), rss.description);
+                return Podcast(feed.title, rss, if (rss.image != null) URL(rss.image.url) else null, rss.description);
             }
             catch (e: IOException) {
-                println(e.message);
+                e.printStackTrace();
                 return null;
             }
         }
