@@ -8,10 +8,10 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 
-class SearchView(private var onPodcastOpen: (Podcast) -> Unit): VBox() {
+class SearchView(private var onFeedOpen: (Feed) -> Unit): VBox() {
 
 
-    val listView = PodcastListView(onPodcastOpen);
+    val listView = PodcastListView(onFeedOpen);
     val searchField = TextField();
     val button = Button("Something Else?");
 
@@ -23,19 +23,19 @@ class SearchView(private var onPodcastOpen: (Podcast) -> Unit): VBox() {
 
         onMouseClicked = EventHandler<MouseEvent>() {
             if (it.clickCount == 2) {
-                onPodcastOpen(listView.selectionModel.selectedItem);
+                onFeedOpen(listView.selectionModel.selectedItem);
             }
         }
 
         children.addAll(searchField, listView, button);
     }
 
-    fun setPodcasts(podcasts: List<Podcast>) {
-        listView.podcasts = podcasts;
+    fun setFeeds(feeds: List<Feed>) {
+        listView.feeds = feeds;
     }
 
-    fun setOnPodcastOpen(onOpen: (Podcast) -> Unit) {
-        onPodcastOpen = onOpen;
-        listView.onPodcastOpen = onOpen;
+    fun setOnPodcastOpen(onOpen: (Feed) -> Unit) {
+        onFeedOpen = onOpen;
+        listView.onFeedOpen = onOpen;
     }
 }

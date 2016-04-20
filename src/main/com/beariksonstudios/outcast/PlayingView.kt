@@ -15,9 +15,16 @@ class PlayingView: VBox() {
         children.addAll(showcase, description, mediaPlayer);
     }
 
-    fun setTrack(track: Track) {
-        mediaPlayer.track = Media(track.url.toURI().path);
-        showcase.track = track;
-        description.engine.loadContent("<html><body bgcolor='#f4f4f4' font-size='xx-small'>${track.description}</body></html>");
+    fun setTrack(track: Track?) {
+        if (track != null) {
+            mediaPlayer.track = Media(track.url.toExternalForm());
+            showcase.track = track;
+            description.engine.loadContent("<html><body bgcolor='#f4f4f4' font-size='xx-small'>${track.description}</body></html>");
+        }
+        else {
+            mediaPlayer.track = null;
+            showcase.track = null;
+            description.engine.loadContent("<html><body bgcolor='#f4f4f4' font-size='xx-small'></body></html>");
+        }
     }
 }

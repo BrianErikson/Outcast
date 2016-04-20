@@ -2,11 +2,12 @@ package com.beariksonstudios.outcast
 
 import javafx.collections.FXCollections
 import javafx.event.EventHandler
+import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.input.MouseEvent
 
-class PodcastListView(var onPodcastOpen: (Podcast) -> Unit): ListView<Podcast>() {
-    var podcasts: List<Podcast> = listOf();
+class PodcastListView(var onFeedOpen: (Feed) -> Unit): ListView<Feed>() {
+    var feeds: List<Feed> = listOf();
     set(value) {
         selectionModel.clearSelection();
         items.setAll(value);
@@ -14,9 +15,20 @@ class PodcastListView(var onPodcastOpen: (Podcast) -> Unit): ListView<Podcast>()
     }
 
     init {
+        setCellFactory {
+            val cell = object : ListCell<Feed>() {
+                override fun updateItem(feed: Feed?, empty: Boolean) {
+                    super.updateItem(feed, empty);
+                    if (feed != null) text = feed.title;
+                    else text = "";
+                }
+            }
+            return@setCellFactory cell;
+        }
+
         onMouseClicked = EventHandler<MouseEvent>() {
             if (it.clickCount == 2) {
-                onPodcastOpen(selectionModel.selectedItem);
+                onFeedOpen(selectionModel.selectedItem);
             }
         }
 
@@ -24,7 +36,7 @@ class PodcastListView(var onPodcastOpen: (Podcast) -> Unit): ListView<Podcast>()
     }
 
     fun filterDisplay(regex: Regex) {
-        val filtered = podcasts.filter { return@filter it.title.contains(regex); }
+        val filtered = feeds.filter { return@filter it.title.contains(regex); }
         selectionModel.clearSelection();
         items.setAll(filtered);
     }

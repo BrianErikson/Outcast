@@ -7,14 +7,33 @@ import javafx.stage.Screen
 import javafx.stage.Stage
 
 class Outcast: Application() {
+    var feeds: List<Feed>? = listOf();
+    set(value) {
+        if (value != null) {
+            podcastList.setFeeds(value);
+        }
+        trackList.podcast = null;
+        playView.setTrack(null);
+
+        field = value;
+    }
+
+    private val rssManager: RssManager = RssManager();
     private val podcastList: SearchView;
     private val trackList: TrackListView;
     private val playView = PlayingView();
     private var stage: Stage? = null;
 
+
     init {
-        trackList = TrackListView { playView.setTrack(it); }
-        podcastList = SearchView { trackList.podcast = it; }
+        trackList = TrackListView({
+            playView.setTrack(it);
+        }, {
+            return@TrackListView RssManager.getTracks(it);
+        });
+
+        podcastList = SearchView { trackList.podcast = RssManager.getPodcast(it); }
+        podcastList.setFeeds(rssManager.getFeeds());
     }
 
     override fun start(primaryStage: Stage) {

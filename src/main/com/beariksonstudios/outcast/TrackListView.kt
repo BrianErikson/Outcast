@@ -6,12 +6,14 @@ import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.input.MouseEvent
 
-class TrackListView(var onTrackOpen: (Track) -> Unit): ListView<Track>() {
+class TrackListView(var onTrackOpen: (Track) -> Unit, var onPodcastSet: (Podcast) -> List<Track>): ListView<Track>() {
     var podcast: Podcast? = null;
     set(value) {
         if (value != null) {
             selectionModel.clearSelection();
-            items.setAll(value.tracks);
+
+            val tracks = onPodcastSet(value);
+            items.setAll(tracks);
         }
         else {
             selectionModel.clearSelection();
