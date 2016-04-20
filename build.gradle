@@ -29,12 +29,12 @@ buildscript {
 sourceSets {
     main {
         java.srcDirs = []
-        kotlin.srcDirs = ['src/main/core']
+        kotlin.srcDirs = ['src/main/com/beariksonstudios/outcast']
         resources.srcDir 'res'
     }
 
     test {
-        kotlin.srcDir 'src/test/core'
+        kotlin.srcDir 'src/test/com/beariksonstudios/outcast'
         resources.srcDir 'res'
     }
 }
