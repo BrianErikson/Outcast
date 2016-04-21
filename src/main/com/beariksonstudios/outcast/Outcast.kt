@@ -5,6 +5,8 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.stage.Screen
 import javafx.stage.Stage
+import podcastmanager.Feed
+import podcastmanager.PodcastManager
 
 class Outcast: Application() {
     var feeds: List<Feed>? = listOf();
@@ -18,7 +20,6 @@ class Outcast: Application() {
         field = value;
     }
 
-    private val rssManager: RssManager = RssManager();
     private val podcastList: SearchView;
     private val trackList: TrackListView;
     private val playView = PlayingView();
@@ -26,18 +27,24 @@ class Outcast: Application() {
 
 
     init {
+        PodcastManager.start();
+
         trackList = TrackListView({
             playView.setTrack(it);
         }, {
-            return@TrackListView RssManager.getTracks(it);
+            return@TrackListView PodcastManager.getTracks(it);
         });
 
-        podcastList = SearchView { trackList.podcast = RssManager.getPodcast(it); }
-        podcastList.setFeeds(rssManager.getFeeds());
+        podcastList = SearchView { trackList.podcast = PodcastManager.getPodcast(it); }
+        podcastList.setFeeds(PodcastManager.getFeeds());
     }
 
     override fun start(primaryStage: Stage) {
         stage = primaryStage;
+        primaryStage.setOnCloseRequest {
+            PodcastManager.stop();
+        }
+
         primaryStage.title = "Outcast";
         val root = SplitPane(podcastList, trackList, playView);
         root.setDividerPositions(0.2, 0.4);

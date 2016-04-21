@@ -7,6 +7,7 @@ import javafx.scene.control.Tooltip
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
+import podcastmanager.Feed
 import java.awt.Desktop
 import java.net.URI
 

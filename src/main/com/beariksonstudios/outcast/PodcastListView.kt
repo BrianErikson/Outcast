@@ -5,6 +5,7 @@ import javafx.event.EventHandler
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.input.MouseEvent
+import podcastmanager.Feed
 
 class PodcastListView(var onFeedOpen: (Feed) -> Unit): ListView<Feed>() {
     var feeds: List<Feed> = listOf();
