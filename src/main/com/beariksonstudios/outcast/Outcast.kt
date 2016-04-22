@@ -35,7 +35,15 @@ class Outcast: Application() {
             return@TrackListView PodcastManager.getTracks(it);
         });
 
-        podcastList = SearchView { trackList.podcast = PodcastManager.getPodcast(it); }
+        podcastList = SearchView {
+            val podcast: Podcast? = PodcastManager.getPodcast(it);
+            if (podcast != null) {
+                trackList.podcast = podcast;
+            }
+            else {
+                println("ERROR in SearchView: Could not obtain podcast data for ${it.title}.");
+            }
+        }
         podcastList.setFeeds(PodcastManager.getFeeds());
     }
 
