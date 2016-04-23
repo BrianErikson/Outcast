@@ -5,6 +5,7 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.stage.Screen
 import javafx.stage.Stage
+import org.apache.logging.log4j.LogManager
 import podcastmanager.Feed
 import podcastmanager.PodcastManager
 
@@ -20,6 +21,7 @@ class Outcast: Application() {
         field = value;
     }
 
+    private val logger = LogManager.getLogger(Outcast::class.java);
     private val podcastList: SearchView;
     private val trackList: TrackListView;
     private val playView = PlayingView();
@@ -27,6 +29,7 @@ class Outcast: Application() {
 
 
     init {
+        System.setProperty("log4j.configurationFile", Outcast::class.java.classLoader.getResource("log4j2.xml").path);
         PodcastManager.start();
 
         trackList = TrackListView({
@@ -41,7 +44,7 @@ class Outcast: Application() {
                 trackList.podcast = podcast;
             }
             else {
-                println("ERROR in SearchView: Could not obtain podcast data for ${it.title}.");
+                logger.info("ERROR in SearchView: Could not obtain podcast data for ${it.title}.");
             }
         }
         podcastList.setFeeds(PodcastManager.getFeeds());

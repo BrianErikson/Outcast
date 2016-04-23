@@ -7,11 +7,10 @@ import com.sun.syndication.feed.synd.SyndEntryImpl
 import com.sun.syndication.feed.synd.SyndFeedImpl
 import com.sun.syndication.io.SyndFeedInput
 import com.sun.syndication.io.XmlReader
+import org.apache.logging.log4j.LogManager
 import org.jdom.Element
-import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.io.InputStreamReader
-import java.io.ObjectInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.sql.Timestamp
@@ -27,7 +26,7 @@ internal class RssManager {
     private val connection = dbFeedPath.openConnection() as HttpURLConnection;
 
     fun getFeeds(): List<Feed> {
-        println("Updating Feeds...");
+        logger.info("Updating Feeds...");
         connection.requestMethod = "GET";
         val feeds = mutableListOf<Feed>();
         val jsonArray = Json.createReader(InputStreamReader(connection.inputStream)).readArray();
@@ -43,7 +42,7 @@ internal class RssManager {
                         feeds.add(Feed(title, validUrl, Timestamp.valueOf(date)));
                     }
                     catch (e: Exception) {
-                        println(e.message);
+                        logger.info(e.message);
                     }
                 }
             }
@@ -53,11 +52,7 @@ internal class RssManager {
     }
 
     companion object {
-        fun parseRssFeed(bean: String): SyndFeedImpl {
-            val input = ObjectInputStream(ByteArrayInputStream(bean.toByteArray()));
-            val feed = input.readObject() as SyndFeedImpl;
-            return feed;
-        }
+        private val logger = LogManager.getLogger(RssManager::class.java);
 
         fun getImageURL(rss: SyndFeedImpl): String? {
             if (rss.image != null) {
@@ -124,7 +119,7 @@ internal class RssManager {
                         tracks.add(Track(podcast, it.title, it.description.value, url));
                     }
                     catch(e: Exception) {
-                        println(e.message);
+                        logger.info(e.message);
                     }
                 }
             }
@@ -142,7 +137,7 @@ internal class RssManager {
             });
 
             if (url.isEmpty()) {
-                println("ERROR: Could not get track URL for ${track.title}");
+                logger.info("ERROR: Could not get track URL for ${track.title}");
                 return null;
             }
 
