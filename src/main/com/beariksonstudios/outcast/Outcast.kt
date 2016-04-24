@@ -2,10 +2,12 @@ package com.beariksonstudios.outcast
 
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.control.SplitPane
+import javafx.scene.control.TreeItem
+import javafx.scene.layout.BorderPane
 import javafx.stage.Screen
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
+import org.controlsfx.control.BreadCrumbBar
 import podcastmanager.Feed
 import podcastmanager.PodcastManager
 
@@ -22,9 +24,15 @@ class Outcast: Application() {
     }
 
     private val logger = LogManager.getLogger(Outcast::class.java);
+    private val borderPane: BorderPane;
     private val podcastList: SearchView;
     private val trackList: TrackListView;
     private val playView = PlayingView();
+    private val PODCAST_CRUMB = "Podcasts";
+    private val TRACK_CRUMB = "Tracks";
+    private val plItem = TreeItem<String>(PODCAST_CRUMB);
+    private val tlItem = TreeItem<String>(TRACK_CRUMB);
+    private val breadcrumb = BreadCrumbBar<String>(plItem);
     private var stage: Stage? = null;
 
 
@@ -35,6 +43,9 @@ class Outcast: Application() {
         trackList = TrackListView({
             playView.setTrack(it);
         }, {
+            tlItem.valueProperty().value = it.title;
+            breadcrumb.selectedCrumbProperty().set(tlItem);
+            breadcrumb.onCrumbAction.handle(BreadCrumbBar.BreadCrumbActionEvent(tlItem));
             return@TrackListView PodcastManager.getTracks(it);
         });
 
@@ -48,6 +59,16 @@ class Outcast: Application() {
             }
         }
         podcastList.setFeeds(PodcastManager.getFeeds());
+
+        borderPane = BorderPane(playView, breadcrumb, null, null, podcastList);
+
+        plItem.children.add(tlItem);
+        breadcrumb.setOnCrumbAction {
+            when (it.selectedCrumb) {
+                plItem -> borderPane.left = podcastList;
+                tlItem -> borderPane.left = trackList;
+            }
+        }
     }
 
     override fun start(primaryStage: Stage) {
@@ -57,11 +78,9 @@ class Outcast: Application() {
         }
 
         primaryStage.title = "Outcast";
-        val root = SplitPane(podcastList, trackList, playView);
-        root.setDividerPositions(0.2, 0.4);
 
         val bounds = Screen.getPrimary().visualBounds;
-        primaryStage.scene = Scene(root, bounds.width / 2, bounds.height / 1.5f);
+        primaryStage.scene = Scene(borderPane, bounds.width / 2, bounds.height / 1.5f);
         primaryStage.show();
     }
 

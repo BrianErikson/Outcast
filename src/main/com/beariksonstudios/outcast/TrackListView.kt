@@ -9,6 +9,8 @@ import javafx.scene.input.MouseEvent
 class TrackListView(var onTrackOpen: (Track) -> Unit, var onPodcastSet: (Podcast) -> List<Track>): ListView<Track>() {
     var podcast: Podcast? = null;
     set(value) {
+        field = value;
+        
         if (value != null) {
             selectionModel.clearSelection();
 
@@ -19,8 +21,6 @@ class TrackListView(var onTrackOpen: (Track) -> Unit, var onPodcastSet: (Podcast
             selectionModel.clearSelection();
             items.removeAll(items);
         }
-
-        field = value;
     }
 
     init {
