@@ -44,7 +44,7 @@ internal class DbManager {
         server.start();
 
         Class.forName("org.h2.Driver");
-        connection = DriverManager.getConnection("jdbc:h2:~/test;mode=PostgreSQL");
+        connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test;mode=PostgreSQL");
         try {
             connection.createStatement().execute("CREATE TABLE $TABLE_FEED ($FEED_TITLE text NOT NULL, $FEED_URL text NOT NULL, " +
                                                 "$FEED_RSS binary NOT NULL, $FEED_LAST_UPDATED timestamp DEFAULT(now()))");
@@ -76,7 +76,7 @@ internal class DbManager {
             if (result <= 0) { // Doesn't exist
                 val s2 = connection.prepareStatement("INSERT INTO $TABLE_FEED VALUES(?,?,?,now())");
                 s2.setString(1, feed.title);
-                s2.setString(2, feed.rssUrl.path);
+                s2.setString(2, feed.rssUrl.toURI().toASCIIString());
                 s2.setBytes(3, serializedRss);
                 result = s2.executeUpdate();
                 s2.close();
