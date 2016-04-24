@@ -12,10 +12,13 @@ class Showcase: HBox() {
     var track: Track? = null;
     set(value) {
         if (value != null) {
-            podcastTitle.text = value.podcast.title;
+            podcastTitle.text = value.podcast.feed.title;
             trackTitle.text = value.title;
+            podcastTitle.isVisible = true;
+            trackTitle.isVisible = true;
             if (value.podcast.imageUrl != null) {
                 imageView.image = Image(value.podcast.imageUrl.openStream(), 100.0, 100.0, true, true);
+                imageView.isVisible = true;
             }
             else {
                 imageView.isVisible = false;

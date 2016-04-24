@@ -2,39 +2,21 @@ package com.beariksonstudios.outcast
 
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.control.TreeItem
 import javafx.scene.layout.BorderPane
 import javafx.stage.Screen
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
-import org.controlsfx.control.BreadCrumbBar
-import podcastmanager.Feed
 import podcastmanager.PodcastManager
 import java.awt.Desktop
 import java.net.URI
 
 class Outcast: Application() {
-    var feeds: List<Feed>? = listOf();
-    set(value) {
-        if (value != null) {
-            podcastList.setFeeds(value);
-        }
-        trackList.podcast = null;
-        playView.setTrack(null);
-
-        field = value;
-    }
-
     private val logger = LogManager.getLogger(Outcast::class.java);
     private val borderPane: BorderPane;
     private val podcastList: SearchView;
     private val trackList: TrackListView;
     private val playView = PlayingView();
-    private val PODCAST_CRUMB = "Podcasts";
-    private val TRACK_CRUMB = "Tracks";
-    private val plItem = TreeItem<String>(PODCAST_CRUMB);
-    private val tlItem = TreeItem<String>(TRACK_CRUMB);
-    private val breadcrumb = BreadCrumbBar<String>(plItem);
+    private val toolbar = Toolbar();
     private var stage: Stage? = null;
 
 
@@ -45,9 +27,7 @@ class Outcast: Application() {
         trackList = TrackListView({
             playView.setTrack(it);
         }, {
-            tlItem.valueProperty().value = it.title;
-            breadcrumb.selectedCrumbProperty().set(tlItem);
-            breadcrumb.onCrumbAction.handle(BreadCrumbBar.BreadCrumbActionEvent(tlItem));
+            toolbar.onPodcastChange(it.feed.title);
             return@TrackListView PodcastManager.getTracks(it);
         });
 
@@ -60,15 +40,26 @@ class Outcast: Application() {
                 logger.info("ERROR in SearchView: Could not obtain podcast data for ${it.title}.");
             }
         }
-        podcastList.setFeeds(PodcastManager.getFeeds());
+        podcastList.setFeeds(PodcastManager.getFeeds(false));
 
-        borderPane = BorderPane(playView, breadcrumb, null, null, podcastList);
+        borderPane = BorderPane(playView, toolbar, null, null, podcastList);
 
-        plItem.children.add(tlItem);
-        breadcrumb.setOnCrumbAction {
-            when (it.selectedCrumb) {
-                plItem -> borderPane.left = podcastList;
-                tlItem -> borderPane.left = trackList;
+        toolbar.onCrumbAction = {
+            when (it) {
+                Toolbar.CrumbType.PODCASTS -> borderPane.left = podcastList;
+                Toolbar.CrumbType.TRACKS -> borderPane.left = trackList;
+            }
+        }
+        toolbar.onRefreshPodcasts = {
+            podcastList.setFeeds(PodcastManager.getFeeds(true));
+            trackList.podcast = null; // wipe current podcast to avoid unknowns
+            playView.setTrack(null);
+        }
+        toolbar.onRefreshTracks = {
+            val podcast = trackList.podcast;
+            if (podcast != null) {
+                trackList.podcast = PodcastManager.getPodcast(podcast.feed, true);
+                playView.setTrack(null);
             }
         }
     }

@@ -22,7 +22,7 @@ class PlayingView: VBox() {
 
     init {
         description.engine.documentProperty().addListener({ observableValue, oldValue, newValue -> run {
-            hookHyperlinkEvents(newValue);
+            if (newValue != null) hookHyperlinkEvents(newValue);
         }});
 
         VBox.setVgrow(mediaPlayer, Priority.NEVER);

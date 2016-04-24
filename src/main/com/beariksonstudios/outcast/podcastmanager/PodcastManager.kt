@@ -19,8 +19,10 @@ object PodcastManager {
         dbManager.stop();
     }
 
-    fun getFeeds(): List<Feed> {
-        if (databaseUpToDate()) {
+    fun getFeeds(forcedUpdate: Boolean = false): List<Feed> {
+        if (forcedUpdate) logger.info("Forcing Feed update");
+
+        if (databaseUpToDate() && !forcedUpdate) {
             val dbFeeds = dbManager.getFeeds();
             if (dbFeeds.isNotEmpty()) return dbFeeds else return getNewFeeds();
         }
@@ -29,8 +31,10 @@ object PodcastManager {
         }
     }
 
-    fun getPodcast(feed: Feed): Podcast? {
-        if (databaseUpToDate()) {
+    fun getPodcast(feed: Feed, forcedUpdate: Boolean = false): Podcast? {
+        if (forcedUpdate) logger.info("Forcing podcast update");
+
+        if (databaseUpToDate() && !forcedUpdate) {
             val podcast: Podcast? = dbManager.getPodcast(feed);
             if (podcast != null) return podcast else return getNewPodcast(feed);
         }

@@ -154,7 +154,7 @@ internal class DbManager {
                     e.printStackTrace();
                 }
             }
-            return Podcast(feed.title, parsedRss, imageUrl, parsedRss.description);
+            return Podcast(feed, parsedRss, imageUrl, parsedRss.description);
         }
 
         logger.info("${feed.title} not found, or RSS feed is not available for this podcast.");

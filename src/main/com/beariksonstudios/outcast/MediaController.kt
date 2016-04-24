@@ -178,36 +178,39 @@ class MediaController(startMedia: Media? = null) : BorderPane() {
         mediaPlayer?.dispose();
         playButton.text = ">";
 
-        mediaPlayer = MediaPlayer(track);
-        mediaPlayer!!.isAutoPlay = true;
-        updateValues();
-        mediaPlayer!!.currentTimeProperty().addListener(InvalidationListener { updateValues() })
+        if (track != null) {
+            mediaPlayer = MediaPlayer(track);
+            mediaPlayer!!.isAutoPlay = true;
+            updateValues();
+            mediaPlayer!!.currentTimeProperty().addListener(InvalidationListener { updateValues() })
 
-        mediaPlayer!!.onPlaying = Runnable {
-            if (stopRequested) {
-                mediaPlayer!!.pause()
-                stopRequested = false
-            } else {
-                playButton.text = "||"
+            mediaPlayer!!.onPlaying = Runnable {
+                if (stopRequested) {
+                    mediaPlayer!!.pause()
+                    stopRequested = false
+                } else {
+                    playButton.text = "||"
+                }
             }
-        }
 
-        mediaPlayer!!.onPaused = Runnable {
-            playButton.text = ">"
-        }
-
-        mediaPlayer!!.onReady = Runnable {
-            duration = mediaPlayer!!.media.duration
-            updateValues()
-        }
-
-        mediaPlayer!!.cycleCount = if (repeat) MediaPlayer.INDEFINITE else 1
-        mediaPlayer!!.onEndOfMedia = Runnable {
-            if (!repeat) {
+            mediaPlayer!!.onPaused = Runnable {
                 playButton.text = ">"
-                stopRequested = true
-                atEndOfMedia = true
+            }
+
+            mediaPlayer!!.onReady = Runnable {
+                duration = mediaPlayer!!.media.duration
+                updateValues()
+            }
+
+            mediaPlayer!!.cycleCount = if (repeat) MediaPlayer.INDEFINITE else 1
+            mediaPlayer!!.onEndOfMedia = Runnable {
+                if (!repeat) {
+                    playButton.text = ">"
+                    stopRequested = true
+                    atEndOfMedia = true
+                }
             }
         }
+        else updateValues();
     }
 }

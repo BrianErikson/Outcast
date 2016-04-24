@@ -101,7 +101,7 @@ internal class RssManager {
                 val rss = SyndFeedInput().build(xmlReader) as SyndFeedImpl;
                 val imageUrl: URL = URL(getImageURL(rss));
 
-                return Podcast(feed.title, rss, imageUrl, rss.description);
+                return Podcast(feed, rss, imageUrl, rss.description);
             }
             catch (e: IOException) {
                 e.printStackTrace();
