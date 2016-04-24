@@ -10,6 +10,8 @@ import org.apache.logging.log4j.LogManager
 import org.controlsfx.control.BreadCrumbBar
 import podcastmanager.Feed
 import podcastmanager.PodcastManager
+import java.awt.Desktop
+import java.net.URI
 
 class Outcast: Application() {
     var feeds: List<Feed>? = listOf();
@@ -88,6 +90,20 @@ class Outcast: Application() {
         @JvmStatic
         fun main(args: Array<String>) {
             launch(Outcast::class.java);
+        }
+
+        fun openWebsite(uri: URI) {
+            if (Desktop.isDesktopSupported()) {
+                val desktop = Desktop.getDesktop();
+                if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                    try {
+                        desktop.browse(uri);
+                    }
+                    catch (e: Exception) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 }
