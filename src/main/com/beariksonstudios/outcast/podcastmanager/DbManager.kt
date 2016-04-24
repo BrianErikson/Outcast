@@ -9,6 +9,7 @@ import java.io.*
 import java.net.URL
 import java.sql.Connection
 import java.sql.DriverManager
+import java.sql.SQLException
 import java.sql.Timestamp
 
 internal class DbManager {
@@ -47,7 +48,7 @@ internal class DbManager {
         connection = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/test;mode=PostgreSQL");
         try {
             connection.createStatement().execute("CREATE TABLE $TABLE_FEED ($FEED_TITLE text NOT NULL, $FEED_URL text NOT NULL, " +
-                                                "$FEED_RSS binary NOT NULL, $FEED_LAST_UPDATED timestamp DEFAULT(now()))");
+                                                "$FEED_RSS binary, $FEED_LAST_UPDATED timestamp DEFAULT(now()))");
         }
         catch (e: JdbcSQLException) {
             logger.info(e.message?.substringAfter("ERROR: ")?.split(";")?.get(0) ?: e.originalMessage);
@@ -63,13 +64,13 @@ internal class DbManager {
     };
 
     fun addFeed(feed: Feed, rss: SyndFeedImpl) {
-        logger.info("Adding or updating feed ${feed.title}");
+        logger.info("Adding or updating feed ${feed.title} with RSS");
         val serializedRss = serializeRssFeed(rss);
 
         try {
             val statement = connection.prepareStatement("UPDATE $TABLE_FEED SET $FEED_RSS=?, $FEED_URL=?, $FEED_LAST_UPDATED=now() WHERE title=?");
             statement.setBytes(1, serializedRss);
-            statement.setString(2, feed.rssUrl.path);
+            statement.setString(2, feed.rssUrl.toURI().toASCIIString());
             statement.setString(3, feed.title);
             var result = statement.executeUpdate();
             statement.close();
@@ -78,6 +79,30 @@ internal class DbManager {
                 s2.setString(1, feed.title);
                 s2.setString(2, feed.rssUrl.toURI().toASCIIString());
                 s2.setBytes(3, serializedRss);
+                result = s2.executeUpdate();
+                s2.close();
+            }
+            if (result <= 0) throw RuntimeException("Could not add ${feed.title}. Reason unknown.");
+        }
+        catch (e: JdbcSQLException) {
+            e.printStackTrace();
+        }
+    }
+
+    fun addFeed(feed: Feed) {
+        logger.info("Adding or updating feed ${feed.title} without RSS");
+
+        try {
+            val statement = connection.prepareStatement("UPDATE $TABLE_FEED SET $FEED_URL=?, $FEED_LAST_UPDATED=now() WHERE title=?");
+            statement.setString(1, feed.rssUrl.toURI().toASCIIString());
+            statement.setString(2, feed.title);
+            var result = statement.executeUpdate();
+            statement.close();
+            if (result <= 0) { // Doesn't exist
+                val s2 = connection.prepareStatement("INSERT INTO $TABLE_FEED VALUES(?,?,?,now())");
+                s2.setString(1, feed.title);
+                s2.setString(2, feed.rssUrl.toURI().toASCIIString());
+                s2.setBytes(3, null);
                 result = s2.executeUpdate();
                 s2.close();
             }
@@ -113,7 +138,7 @@ internal class DbManager {
         try {
             rss = result.getBytes(FEED_RSS);
         }
-        catch(e: JdbcSQLException) {
+        catch(e: SQLException) {
             print(e.message);
         }
 
@@ -132,7 +157,7 @@ internal class DbManager {
             return Podcast(feed.title, parsedRss, imageUrl, parsedRss.description);
         }
 
-        logger.info("${feed.title} not found");
+        logger.info("${feed.title} not found, or RSS feed is not available for this podcast.");
         return null;
     }
 

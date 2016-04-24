@@ -20,14 +20,17 @@ object PodcastManager {
     }
 
     fun getFeeds(): List<Feed> {
-        if (dbManager.lastUpdated.after(Timestamp(System.currentTimeMillis() + updateRate))) {
-            return dbManager.getFeeds();
+        if (databaseUpToDate()) {
+            val dbFeeds = dbManager.getFeeds();
+            if (dbFeeds.isNotEmpty()) return dbFeeds else return getNewFeeds();
         }
-        else { return rssManager.getFeeds(); }
+        else {
+            return getNewFeeds();
+        }
     }
 
     fun getPodcast(feed: Feed): Podcast? {
-        if (dbManager.lastUpdated.after(Timestamp(System.currentTimeMillis() - updateRate))) {
+        if (databaseUpToDate()) {
             val podcast: Podcast? = dbManager.getPodcast(feed);
             if (podcast != null) return podcast else return getNewPodcast(feed);
         }
@@ -38,6 +41,19 @@ object PodcastManager {
 
     fun getTracks(podcast: Podcast): List<Track> {
         return RssManager.getTracks(podcast);
+    }
+
+    private fun databaseUpToDate(): Boolean {
+        return dbManager.lastUpdated.after(Timestamp(System.currentTimeMillis() - updateRate));
+    }
+
+    private fun getNewFeeds(): List<Feed> {
+        logger.info("Getting new feeds; Feeds either don't exist in the db, or is stale.");
+        val newFeeds = rssManager.getFeeds();
+        newFeeds.forEach { // Update db
+            dbManager.addFeed(it);
+        }
+        return newFeeds;
     }
 
     private fun getNewPodcast(feed: Feed): Podcast? {
